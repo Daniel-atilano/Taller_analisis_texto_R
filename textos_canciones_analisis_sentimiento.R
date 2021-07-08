@@ -10,6 +10,9 @@ library(SnowballC)
 library(wordcloud)
 library(wordcloud2)
 library(RColorBrewer)
+library(readr)
+
+################CANCION 1: CANCION SIN MIEDO (VIVIR QUINTANA)
 
 alas <- c(
   "Que tiemble el Estado, los cielos, las calles",
@@ -96,6 +99,7 @@ wordcloud(
   colors=brewer.pal(8, "PuOr")
 )
 
+##############CANCION 2: Querida Muerte (No Nos Maten)(RENEE GOUST)
 
 querida <- c(
   "Si observas desde afuera no lo notas",
@@ -198,7 +202,7 @@ wordcloud(
   colors=brewer.pal(8, "PuOr")
 )
 
-
+#################CANCION 3: ANTIPATRIARCA (ANA TIJOUX)
 
 ### antipatriota
 anti <- c(
@@ -292,13 +296,9 @@ wordcloud(
 
 
 
-
-# bebe
-
+#############CANCION 5: HASTA QUE DIOS DIGA (BAD BUNNY)
 
 
-
-##### brr 
 bad <- c(
   "Hoy la noche se acaba",
   "Tú desnuda en mi cama",
@@ -415,7 +415,7 @@ bad_df_0 %>%
   geom_col() +
   labs(y = NULL)
 
-#Masoquismo
+############CANCION 6: Safaera (BAD BUNNY)
 
 bad <- c( "Bla, bla, bla, bla, bla, bla",
           "Ey, yo, yo-yo, yo-yo, yo-yo",
@@ -551,7 +551,6 @@ bad_df_0 %>%
 bad_df_1 <- bad_df_0 %>%
   count(word, sort = TRUE) 
 
-library(wordcloud2)
 
 wordcloud(
   words = bad_df_1$word,
@@ -567,8 +566,8 @@ wordcloud2(data=maso_df_1, size= 1)
 
 wordcloud2(maso_df_1, size=1, color=rep_len( c("#fb8072","#bebada"), nrow(maso_df_1) ) )
 
+#########CANCION 7: YA FUE (LA OTRA)
 
-#Ya fue
 
 ya_fue <- c(
   "Ya fue, se termina",
@@ -662,10 +661,121 @@ wordcloud2(data=maso_df_1, size= 1)
 
 wordcloud2(ya_fue_df_1, size=1.5, color=rep_len( c("#fb8072","#bebada","#80b1d3"), nrow(ya_fue_df_1) ) )
 
-########  ANALISIS DE SENTIMIENTO
+#########CANCION 8: MALAMENTE (ROSALIA)
 
-X13428_2015_700_MOESM1_ESM <- read_csv("13428_2015_700_MOESM1_ESM.csv", 
-                                       +     locale = locale(encoding = "WINDOWS-1252"))
+malamente <- c(
+  "Ese cristalito roto",
+  "Yo sentí como crujía",
+  "Antes de caerse al suelo",
+  "Ya sabía que se rompía",
+  "Está parpadeando",
+  "La luz del descansillo",
+  "Una voz en la escalera",
+  "Alguien cruzando el pasillo",
+  "Malamente (Eso es, así si)",
+  "Malamente (Tra, tra)",
+  "Mal, mu' mal, mu' mal, mu' mal, mu' mal (Mira)",
+  "Malamente (Toma que toma 'amono)",
+  "Está en la mente (Eso es, 'illo)",
+  "Malamente",
+  "Mal, mu' mal, mu' mal, mu' mal, mu' mal",
+  "Malamente uh",
+  "Se ha puesto la noche rara",
+  "Han salio' luna y estrellas",
+  "Me lo dijo esa gitana",
+  "Mejor no salir a verla",
+  "Sueño que estoy andando",
+  "Por un puente y que la acera (Mira, mira, mira, mira)",
+  "Cuanto más quiero cruzarlo",
+  "Más se mueve y tambalea",
+  "Malamente (Eso es, así si)",
+  "Malamente (Tra, tra)",
+  "Mal, mu' mal, mu' mal, mu' mal, mu' mal (Mira)",
+  "Malamente (Toma que toma, 'amono)",
+  "Está en la mente (Eso es 'illo)", 
+  "Malamente",
+  "Mal, mu' mal, mu' mal, mu' mal, mu' mal", 
+  "Malamente",
+  "Aunque no esté bonita", 
+  "La noche, ¡Undivé!",
+  "Vi' a salir pa' la calle",
+  "En la manita los aros brillando",
+  "En mi piel los corales",
+  "Me proteja y me salve",
+  "Me ilumine y me guarde",
+  "Y por delante", 
+  "No voy a perder ni un minuto en volver a pensarte",
+  "Malamente (Eso es, así si)",
+  "Malamente (Tra, tra)",
+  "Mal, mu' mal, mu' mal, mu' mal, mu' mal (Mira)",
+  "Malamente (Toma que toma 'amono)",
+  "Está en la mente (Eso es 'illo)",
+  "Malamente",
+  "Mal, mu' mal, mu' mal, mu' mal, mu' mal ('Illo)",
+  "Malamente",
+  "(Toma que toma)",
+  "Está en la mente ('Illo)",
+  "Malamente (Tra, tra)",
+  "Mal, mu' mal, mu' mal, mu' mal, mu' mal ('Amono)",
+  "Malamente",
+  "(Toma que toma) ('Amono)",
+  "Está en la mente (Eso es)",
+  "¡'Illo!",
+  "Malamente",
+  "Mal, mu' mal, mu' mal, mu' mal, mu' mal",
+  "Malamente"
+)
+
+# se hace un tibble
+malamente_df <- tibble(line = 1:60, texto = malamente)
+# tibble de dos columnas 
+malamente_df <- malamente_df %>%
+  unnest_tokens(word, texto)
+
+#### stop_words en espaÃ±ol
+tm_stop_words <- bind_rows(data_frame(word = tm::stopwords("spanish"),
+                                      lexicon = "custom"))
+
+malamente_df_0 <- malamente_df %>% 
+  anti_join(tm_stop_words)
+
+malamente_df_0 %>%
+  count(word, sort = TRUE) %>%
+  filter(n > 2) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +
+  geom_col(fill = "#8d99ae") +
+  labs(title = "Frecuencia de palabras de Malamente", 
+       x = "FRECUENCIA", y = " ", color = "", size = 40) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 20, face = "bold", color = "#88398A")) +
+  theme(axis.title.y = element_text(size = 18, face="bold", color = "#88398A"),
+        axis.title.x = element_text(size = 18, face="bold", color = "#88398A"),
+        axis.text = element_text(size = 16, face="bold", color = "#88398A"))
+
+
+malamente_df_1 <- malamente_df_0 %>%
+  count(word, sort = TRUE) 
+
+wordcloud(
+  words = malamente_df_1$word,
+  freq = malamente_df_1$n,
+  min.freq =1,
+  max.words=200,
+  random.order=TRUE,
+  rot.per=0.35,
+  colors=brewer.pal(8, "PuOr")
+)
+
+wordcloud2(data=malamente_df_1, size= 1)
+
+wordcloud2(malamente_df_1, size=1.5, color=rep_len( c("#fb8072","#bebada","#80b1d3"), nrow(malamente_df_1) ) )
+
+
+
+########  ANALISIS DE SENTIMIENTO CANCION BAD BUNNY "SAFAERA"######################################
+
+X13428_2015_700_MOESM1_ESM <- read_csv("13428_2015_700_MOESM1_ESM.csv", locale = locale(encoding = "WINDOWS-1252"))
 
 
 diccionario<- X13428_2015_700_MOESM1_ESM
