@@ -1,0 +1,388 @@
+---
+title: "Introducción a text mining"
+author: "Scarlett Escudero, Bianca Pérez y Daniel Atilano"
+date: "7/7/2021"
+output: html_document
+---
+
+
+## ¿Qué debes saber de R?
+
+* ¿Cómo crear un data frame?
+Son estructuras de datos para poder trabajarlos de diferentes formas.
+Se pueden crear con vectores, variables existentes de una base de datos de la siguiente forma:
+Nombre_del_objeto <- data.frame(variable o vectores)
+
+* dplr
+Esta paquetería se usa para la manipulación y operacionalización de dataframes. 
+Permite una acstracción 
+  + select: selecciona un conjunto de columnas
+  + filter: selecciona un conjunto de filas
+  + arrange: reordena filas de un dataframe
+  + rename: renombra variables
+  + mutate: añade nuevas variables/columnas
+  + summarise: resumen de las variables del dataframe
+  
+```{r, message=FALSE}
+library(tidyverse)
+library(dplyr)
+```
+
+ 
+* Antes de empezar, recordemos que:
+  + Cada variable es una columna
+  + Cada observación es una fila
+  + Cada tipo de unidad de observación es una tabla
+
+
+
+## Conceptos importantes 
+* Token: Se refiere a la observación almacenada en una fila, a menudo es una sola palabra, pero también pueden ser n-gramas, oraciones completas o hasta párrafos.
+* Tokenización: Es la función requerida para convertir un texto completo en un token, es decir, en elementos más pequeños.
+* String: O cadena de texto, por ejemplo, vectores de caracteres que en conjunto forman palabras, oraciones, o párrafos, es decir, la forma en la que se almacenan textos.
+* Stopwords: Son palabras que usamos comúnmente para comunicarnos y nos sirven para dar contexto y entendernos, por ejemplo, preposiciones o artículos. En análisis de texto se eliminan pues no aportan información.
+* Vector: Un vector es una colección de uno o más datos del mismo tipo. Si tenemos un vector de tipo “caracter” todos los elementos serán caracteres, es decir, no se pueden combinar.
+
+
+## Formato de texto
+
+El formato del texto se ordena como si fuera una tabla, como un token por fila de la siguiente manera:
+
+![](C:/Users/Lenovo/Documents/tabla_word_token.png)
+
+
+Otra forma de ver los datos es a través de:
+
+Cadena: c( “a”, “b”, “c” ) 
+Corpus: Datos de Twitter
+Matriz: 
+
+## Siguiendo con el ejemplo de la canción
+¿Cómo le damos orden?
+Crearemos un objeto el cual llamaremos del nombre de la canción “safaera” el cual tendrá el texto (la letra). 
+
+Después lo convertimos a un conjunto de datos creando nuevamente un objeto  llamándolo “text_df” y con la librería  “dplyr” se aplicará un “tibble”, esta función que los datos se organicen en forma de tabla.
+
+```{r}
+text <- c(  
+  "Que tiemble el Estado, los cielos, las calles",
+  "Que tiemblen los jueces y los judiciales",
+  "Hoy a las mujeres nos quitan la calma",
+  "Nos sembraron miedo, nos crecieron alas",
+  "A cada minuto, de cada semana",
+  "Nos roban amigas, nos matan hermanas",
+  "Destrozan sus cuerpos, los desaparecen",
+  "No olvide sus nombres, por favor, señor presidente",
+  "Por todas las compas marchando en Reforma",
+  "Por todas las morras peleando en Sonora",
+  "Por las comandantas luchando por Chiapas",
+  "Por todas las madres buscando en Tijuana",
+  "Cantamos sin miedo, pedimos justicia",
+  "Gritamos por cada desaparecida",
+  "Que resuene fuerte ¡nos queremos vivas!",
+  "Que caiga con fuerza el feminicida",
+  "Yo todo lo incendio, yo todo lo rompo",
+  "Si un día algún fulano te apaga los ojos",
+  "Ya nada me calla, ya todo me sobra",
+  "Si tocan a una, respondemos todas",
+  "Soy Claudia, soy Esther y soy Teresa",
+  "Soy Ingrid, soy Fabiola y soy Valeria",
+  "Soy la niña que subiste por la fuerza",
+  "Soy la madre que ahora llora por sus muertas",
+  "Y soy esta que te hará pagar las cuentas",
+  "¡Justicia, justicia, justicia!",
+  "Por todas las compas marchando en Reforma",
+  "Por todas las morras peleando en Sonora",
+  "Por las comandantas luchando por Chiapas",
+  "Por todas las madres buscando en Tijuana",
+  "Cantamos sin miedo, pedimos justicia",
+  "Gritamos por cada desaparecida",
+  "Que resuene fuerte ¡nos queremos vivas!",
+  "Que caiga con fuerza el feminicida",
+  "Que caiga con fuerza el feminicida",
+  "Y retiemblen sus centros la tierra",
+  "Al sororo rugir del amor",
+  "Y retiemblen sus centros la tierra",
+  "Al sororo rugir del amor"
+)
+
+text_df <- tibble(line = 1:39, text = text)
+  
+```
+
+
+```{r}
+safaera <- c(
+  "Bla, bla, bla, bla, bla, bla",
+  "Ey, yo, yo-yo, yo-yo, yo-yo",
+  "Yo, (la-la-la-la-la-la-la) blow, blow (la-la-la-la-la-la-la)",
+  "Diablo', qué safaera'",
+  "Tú tiene' un culo cabrón",
+  "Cualquier cosa que te pongas rompes la carretera (la-la-la-la-la)",
+  "Aight, muévelo, muévelo, muévelo, muévelo (la-la-la-la-la-la-la)",
+  "Qué safaera' (la-la-la-la-la)",
+  "Tú tiene' un culo cabrón",
+  "Cualquier cosa que te pongas rompes la carretera",
+  "Aight, (tra) muévelo, muévelo, muévelo, muévelo",
+  "Qué falta de respeto, mami",
+  "¿Cómo te atreve' a venir sin panty?",
+  "Hoy saliste puesta pa' mí",
+  "Yo que pensaba que venía a dormir, no",
+  "Vino ready ya, puesta pa' una cepillá'",
+  "Me chupa la lollipop, solita se arrodilla, hey",
+  "¿Cómo te atreve', mami, a venir sin panty?",
+  "Mera, dímelo, DJ Orma",
+  "¿Qué tú te cree'? Jodío' cabrón",
+  "Yo hago lo que me da la gana, dícelo conejo",
+  "Ey, ey",
+  "Hoy se bebe, hoy se gasta",
+  "Hoy se fuma como un rasta",
+  "Si Dios lo permite (si Dios lo permite), ey",
+  "Si Dios lo permite (que si Dios lo permite), ey",
+  "Hoy se bebe, hoy se gasta",
+  "Hoy se fuma como un rasta (wuh, wuh, wuh)",
+  "Si Dios lo permite, ey",
+  "Si Dios lo permite (yo, yo), ey",
+  "Real G, orientando a la' generaciones nueva', con la verdadera",
+  "Bellaqueo a lo galactic",
+  "Sí, pa' que se te mojen los panty, métele bellaco a lo versátil",
+  "Más puta que Betty Boop, la que se puso bellaca, mami, fuiste tú",
+  "Sigo matando con la U",
+  "Chocha con bicho, bicho con nalga (empuja)",
+  "Cho-chocha con bicho, bicho con nalga, sí (empuja)",
+  "Chocha con bicho, bicho con nalga (empuja)",
+  "Te-te está rozando mi tetilla (empuja)",
+  "Este año no quiero putilla (empuja)",
+  "Te ven con mucha' prenda' y se quieren pegar (empuja)",
+  "Te ven bien activao' y se quieren pegar (empuja)",
+  "Porque estás bien buena, porque estás bien buena (empújamelo completo)",
+  "Tetas bien grande' como Lourdes Chacón",
+  "Las nalga' bien grande' como Iris Chacón",
+  "La chocha no sé porque no la he visto",
+  "Pero vamo' pa' la cama a clavarte en panty",
+  "Hoy se bebe, hoy se gasta",
+  "Hoy se fuma como un rasta",
+  "Si Dios lo permite",
+  "Si Dios lo permite, yeh-yeah",
+  "Hoy se bebe, hoy se gasta",
+  "Hoy se fuma como un rasta",
+  "Si Dios lo permite",
+  "Si Dios lo permite",
+  "Mami ¿Qué tú quiere'? Aquí llegó tu tiburón",
+  "Yo quiero perrearte y fumarme un blunt",
+  "Ver lo que esconde ese pantalón",
+  "Yo quiero perrearte y perrearte y perrearte (duro, duro)",
+  "Yo-yo-yo-yo quiero perrearte y fumarme un blunt (duro, duro)",
+  "Yo quiero perrearte y perrearte y perrear (duro, duro)",
+  "Yo-yo-yo-yo quiero perrearte y fumarme un blunt, -me un blunt (duro, duro)",
+  "La rola ya me explotó",
+  "La nena bailando se botó",
+  "Ese culo se merece to', se merece to', se merece to', yes",
+  "Ese culo se merece to', se merece to', se merece to' (ey, ey, ey, ey, ey)",
+  "Ah, yo pensaba que se ponía lenta",
+  "'Tá bien, 'tá bien, vamo' de nuevo, de nuevo",
+  "Meren a Orma, meren a Orma que está bellaco",
+  "Mi bicho anda fugao' y yo quiero que tú me lo esconda'",
+  "Agárralo como bonga",
+  "Se metió una pepa que la pone cachonda",
+  "Chinga en lo' Audi, no en lo' Honda",
+  "Ey, si te lo meto no me llame'",
+  "Que esto no es pa' que me ame', ey",
+  "Si tu novio no te mama el culo",
+  "Pa' eso que no mame",
+  "Baja pa' casa que yo te lambo toa'",
+  "Mami, yo te lambo toa'",
+  "Baja pa' casa que yo te rompo toa', ey",
+  "Que yo te rompo toa'",
+  "Baja pa' casa que yo te lambo toa' (sigue)",
+  "Mami, yo te lambo toa' (sigue)",
+  "Dime, sierva (papi, sigue)",
+  "Si tú fumas yerba (papi, pa-pa)",
+  "Jowell, bebé, bebé, bebé",
+  "Perreando e' la bichota (wah, oh)",
+  "Se ve que chinga rico en la nota",
+  "Yo quiero tirarme un selfie con esa' nalgota' (tra, tra) (oh)",
+  "Parao', parao', parao' lo tengo, se me nota (woh)",
+  "¿Qué vamo' a hacer con esa' nalgota'? (What)",
+  "En la uni to' son A, A, A (tra)",
+  "Pero esa' teta' son C",
+  "Tú ere' una súper bellaca (wuh), mami, yo lo sé (eh)",
+  "Yo también soy un bellaco (tra) ¿Qué vamo' a hacer? (Tú sabe') eh",
+  "Con ese bum-bum, guíllate, bum-bum",
+  "Guíllate ese bum-bum, guíllate, bum-bum",
+  "Si tiene' ese bum-bum, guíllate, bum-bum",
+  "Si tiene' ese bum-bum, guíllate, buoh"
+)
+safaera_df <- tibble(line = 1:99, letra = safaera) 
+```
+
+### unnest_tokens
+
+Ya teniendo el texto ordenado, lo que procede es dividir el texto en tokens, es decir, ordenar aún más el texto de tal forma que cada fila de un enunciado se separará en otra fila. Para ello se utilizará la librería (tidytext).
+
+```{r, message=FALSE}
+library(tidytext)
+```
+
+
+Tomamos el objeto text_df, le agregamos un pipe (%>%) para  decirle que  tokenice  y nombramos a la columna de salida y después la columna de donde proviene el texto
+Además, esta función elimina la puntuación, y convierte todas las letras a minúsculas.
+
+```{r}
+safaera_df <- safaera_df %>%
+  unnest_tokens(word, letra)
+```
+
+### stop_words
+
+Ahora agregaremos una una función de limpie aún más nuestros datos.
+Para ello utilizaremos:
+
+```{r}
+tm_stop_words <- bind_rows(tibble(word = tm::stopwords("spanish"),
+                                     lexicon = "custom"))
+
+```
+
+
+Y para finalizar esta parte se adjuntamos con un anti_join a nuestro texto:
+```{r, message=FALSE}
+safaera_df_0 <- safaera_df %>%
+	anti_join(tm_stop_words)
+```
+
+## Ahora a visualizar
+
+![](C:/Users/Lenovo/Documents/descarga.jfif)
+
+### Frecuencia de palabras
+
+Utilizaremos las librerías de ggplot2 y dplyr
+```{r, message=FALSE}
+library(ggplot2)
+```
+
+### Histograma
+
+
+```{r}
+safaera_df_0 %>%
+ count(word, sort = TRUE) %>%
+ filter(n > 4) %>%
+ mutate(word = reorder(word, n)) %>%
+ ggplot(aes(n, word)) +
+ geom_col(fill = "#8d99ae") +
+ labs(title = "Frecuencia de palabras en la canción 'Safaera' ", 
+      x = "Frecuencia", y = "Palabras", color = "", size = 30)
+```
+
+### Nube de palabras
+
+Para visualizarlas de esta manera utilizaremos la librería de wordCloud 
+```{r, message=FALSE}
+library(wordcloud)
+
+safaera_df_00 <- safaera_df_0 %>%
+ count(word, sort = TRUE)
+
+wordcloud(words = safaera_df_00$word,
+          freq = safaera_df_00$n,
+           min.freq =1,
+           max.words=200,
+           random.order=FALSE,
+           rot.per=0.35,
+           colors = c("cornflowerblue", "blueviolet")
+          )
+
+```
+
+## Diccionarios
+### Los datasets de sentiments 
+
+Existe una variedad de métodos y diccionarios para evaluar el sentimiento en textos. El paquete tidytext proporciona acceso a varios léxicos de sentimientos. Tres léxicos de general-purpose son:
+  + AFINN de Finn Årup Nielsen
+  + bing de Bing Liu y cols.
+  + nrc de Saif Mohammad y Peter Turney
+  
+get_sentiments("afinn")
+
+
+* Desventajas de usar estos léxicos:
+  + Están en inglés (https://github.com/jboscomendoza/lexicos-nrc-afinn)
+  + Cómo los validaron 
+  
+  
+Nosotros usaremos el diccionario de ___________________----  
+
+```{r}
+X13428_2015_700_MOESM1_ESM <- read.csv("13428_2015_700_MOESM1_ESM.csv")
+
+
+diccionario <- X13428_2015_700_MOESM1_ESM
+```
+
+## Análisis de sentimientos usando diccionarios
+
+Mediante el análisis de sentimientos podemos saber si un texto presenta connotaciones positivas o negativas
+
+```{r}
+library(wordcloud)
+library(wordcloud2)
+library(RColorBrewer)
+library(readr)
+```
+Nosotros usaremos el diccionario de 14,031 palabras propuesto por Stadthagen-Gonzalez, Imbault, Pérez & Brysbaert (2017).
+
+```{r}
+diccionario_fil <- diccionario %>% 
+  filter(!between(ValenceMean,4,6.07))
+
+safaera_diccionario <- 
+  safaera_df %>%
+  unnest_tokens(input = "word", output = "Word") %>%
+  inner_join(diccionario_fil, ., by = "Word") %>%
+  mutate(Tipo = ifelse( ValenceMean > 5 , "Positiva", "Negativa")) 
+
+```
+
+Veamos los gráficos de las palabras positivas y negativas:
+
+```{r}
+g <- safaera_diccionario %>%
+  count(Word, Tipo, sort = TRUE) %>%
+  ungroup()
+
+
+g %>%
+  group_by(Tipo) %>%
+  top_n(20) %>%
+  ungroup() %>%
+  mutate(Word = reorder(Word, n)) %>%
+  ggplot(aes(n, Word, fill = Tipo)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~Tipo, scales = "free_y") +
+  labs(x = "Contribution to sentiment",
+       y = NULL)
+
+
+#Nube de palabras
+
+Negativas <- g %>% 
+  filter(Tipo == "Negativa") %>% 
+  select(-2)
+
+wordcloud2(data=Negativas, size = 1.3, minRotation = -pi/230, maxRotation = -pi/230, 
+           rotateRatio = 0, shape = "circle")
+
+```
+
+```{r}
+Positivas <- g %>% 
+  filter(Tipo == "Positiva") %>% 
+  select(-2)
+
+wordcloud2(data=Positivas, size = 1.3, minRotation = -pi/230, maxRotation = -pi/230, 
+           rotateRatio = 0, shape = "circle")
+```
+
+El uso de este diccionario también tiene desventajas, como son la validez de él y que no incluye muchas palabras; también fue arbitario el cómo asignamos lo positivo y negativo a las valencias.
